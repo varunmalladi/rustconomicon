@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> mdBook Quickstart</a></li><li class="chapter-item expanded "><a href="chapter-1.html"><strong aria-hidden="true">2.</strong> Chapter 1</a></li><li class="chapter-item expanded "><a href="chapter-2.html"><strong aria-hidden="true">3.</strong> Chapter 2</a></li><li class="chapter-item expanded "><a href="foo/index.html"><strong aria-hidden="true">4.</strong> Foo</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="foo/fizz.html"><strong aria-hidden="true">4.1.</strong> Fizz</a></li><li class="chapter-item expanded "><a href="foo/buzz.html"><strong aria-hidden="true">4.2.</strong> Buzz</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="lexing.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li class="chapter-item expanded affix "><li class="part-title">Part 2:</li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -143,16 +143,56 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="mdbook-quickstart"><a class="header" href="#mdbook-quickstart">mdBook Quickstart</a></h1>
-<p>Welcome to the demo site for mkBook Quickstart.</p>
-<p>View source:</p>
-<p><a href="https://github.com/MichaelCurrin/mdbook-quickstart"><img src="https://img.shields.io/static/v1?label=MichaelCurrin&amp;message=mdbook-quickstart&amp;color=blue&amp;logo=github" alt="MichaelCurrin - mdbook-quickstart" /></a></p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-1"><a class="header" href="#chapter-1">Chapter 1</a></h1>
-<p>Content goes here. h</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="chapter-2"><a class="header" href="#chapter-2">Chapter 2</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="foo"><a class="header" href="#foo">Foo</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="fizz"><a class="header" href="#fizz">Fizz</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="buzz"><a class="header" href="#buzz">Buzz</a></h1>
+                        <h1 id="lexing"><a class="header" href="#lexing">Lexing</a></h1>
+<p>Our goal here is to take some input and return a stream of tokens somehow 
+representing this input. Specifically, we'll be working towards the following
+function:</p>
+<pre><code>pub fn tokenize(input: &amp;'_ str) -&gt; impl Iterator&lt;Item = Token&gt; + '_ {...}
+</code></pre>
+<p>As this suggests,</p>
+<ul>
+<li>Our input as a <code>&amp;str</code>. This is so we can have some modularity in our code, 
+making this code independent of how we actually end up receiving input from the 
+user.</li>
+<li>Our output is an iterator over tokens, which themselves are represented by a 
+<code>struct Token</code>. </li>
+</ul>
+<p>There are also some anonymous lifetime annotations, which we'll find are 
+necessary in our subsequent discussions.</p>
+<h2 id="outline"><a class="header" href="#outline">Outline</a></h2>
+<p>We give here a basic sketch of our approach.</p>
+<h3 id="cursor"><a class="header" href="#cursor">Cursor</a></h3>
+<p>Given our input, which we are assuming is coming in as a <code>&amp;str</code>, how do we 
+get a stream of tokens? The natural idea is to walk through this input 
+character-by-character, and determine tokens this way. An iterator over characters
+turns out to not be robust enough: we want to do other things, like look ahead 
+without consuming the item, advance until a certain parameter condition is met, 
+and remember how long the token we just consumed was. </p>
+<p>To provide this functionality, we define the <code>Cursor</code> struct. It is like an 
+iterator over <code>char</code>s, but with more features. </p>
+<h3 id=""><a class="header" href="#"></a></h3>
+<p>This works fine if every 
+token is represented by a single character. For example, if our input was <code>&quot;;,!&quot;</code>, 
+then we would first read <code>;</code> and know it's the token <code>Semicolon</code>, then read <code>,</code> and 
+know it's <code>Comma</code>, then read <code>!</code> and know it's <code>Exclamation</code>. </p>
+<p>The issue is that not all tokens are just one character. For example, suppose we 
+had the input <code>&quot;    cat&quot;</code>. We don't want to read each individual space as a 
+<code>Whitespace</code>, just indicate that there is a whitespace with a single <code>Whitespace</code>
+token. So read the first character, see it is a <code>Whitespace</code>, and then want to 
+keep advancing until all that is left is <code>&quot;cat&quot;</code>. But this would mean stopping 
+right before the letter <code>c</code>, which we could only do if we could &quot;look ahead&quot; one 
+character.</p>
+<p>In other words, we want to ability to <em>peek</em>, i.e. look ahead. In general, the 
+point of saying all this is that we want more functionality than a simply iterator 
+over the characters can provide. For instance, we want the ability to look ahead.</p>
+<p>Suppose we represented words with a token called <code>Word</code>
+(which is not accurate, just used here as an example). Then we might expect our 
+tokens to be <code>Word</code>, <code>Whitespace</code>, <code>Word</code>. Now, we could read through 
+character-by-character and say that a letter is the beginning of a word. Okay, but 
+how do we know when the word ends? We would know, in this approach, when we read 
+the space. So at that point our theoretical function would give us a token 
+<code>Word</code>. Then it would start looking at the next character, which is now <code>c</code>. We
+skipped over the </p>
 
                     </main>
 
