@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="lexing.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li class="chapter-item expanded affix "><li class="part-title">Part 2:</li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="lexing.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cursor.html"><strong aria-hidden="true">1.1.</strong> Cursor</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part 2:</li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -169,35 +169,18 @@ without consuming the item, advance until a certain parameter condition is met,
 and remember how long the token we just consumed was. </p>
 <p>To provide this functionality, we define the <code>Cursor</code> struct. It is like an 
 iterator over <code>char</code>s, but with more features. </p>
-<h3 id=""><a class="header" href="#"></a></h3>
-<p>This works fine if every 
-token is represented by a single character. For example, if our input was <code>&quot;;,!&quot;</code>, 
-then we would first read <code>;</code> and know it's the token <code>Semicolon</code>, then read <code>,</code> and 
-know it's <code>Comma</code>, then read <code>!</code> and know it's <code>Exclamation</code>. </p>
-<p>The issue is that not all tokens are just one character. For example, suppose we 
-had the input <code>&quot;    cat&quot;</code>. We don't want to read each individual space as a 
-<code>Whitespace</code>, just indicate that there is a whitespace with a single <code>Whitespace</code>
-token. So read the first character, see it is a <code>Whitespace</code>, and then want to 
-keep advancing until all that is left is <code>&quot;cat&quot;</code>. But this would mean stopping 
-right before the letter <code>c</code>, which we could only do if we could &quot;look ahead&quot; one 
-character.</p>
-<p>In other words, we want to ability to <em>peek</em>, i.e. look ahead. In general, the 
-point of saying all this is that we want more functionality than a simply iterator 
-over the characters can provide. For instance, we want the ability to look ahead.</p>
-<p>Suppose we represented words with a token called <code>Word</code>
-(which is not accurate, just used here as an example). Then we might expect our 
-tokens to be <code>Word</code>, <code>Whitespace</code>, <code>Word</code>. Now, we could read through 
-character-by-character and say that a letter is the beginning of a word. Okay, but 
-how do we know when the word ends? We would know, in this approach, when we read 
-the space. So at that point our theoretical function would give us a token 
-<code>Word</code>. Then it would start looking at the next character, which is now <code>c</code>. We
-skipped over the </p>
+<h3 id="lexer"><a class="header" href="#lexer">Lexer</a></h3>
+<p>This is where we'll define <code>tokenize()</code> and everything needed to make it make 
+sense. This includes defining tokens.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
 
+                            <a rel="next" href="cursor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -206,6 +189,9 @@ skipped over the </p>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
 
+                    <a rel="next" href="cursor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
