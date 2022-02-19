@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="lexing.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cursor.html"><strong aria-hidden="true">1.1.</strong> Cursor</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part 2:</li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Part 1: Compiling Hello World</li><li class="chapter-item expanded "><a href="1.lexing/overview.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="1.lexing/cursor.html"><strong aria-hidden="true">1.1.</strong> Cursor</a></li><li class="chapter-item expanded "><a href="1.lexing/lexer.html"><strong aria-hidden="true">1.2.</strong> Lexer</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part 2: (tbd)</li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -143,7 +143,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="lexing"><a class="header" href="#lexing">Lexing</a></h1>
+                        <div style="break-before: page; page-break-before: always;"></div><h1 id="lexing"><a class="header" href="#lexing">Lexing</a></h1>
 <p>Our goal here is to take some input and return a stream of tokens somehow 
 representing this input. Specifically, we'll be working towards the following
 function:</p>
@@ -187,14 +187,18 @@ handle the return value whenever calling one of <code>Cursor</code>'s methods. <
 <h2 id="struct-definition"><a class="header" href="#struct-definition">Struct definition</a></h2>
 <p>Here is our working definition. We'll try to explain why we have defined it this 
 way, but it will become clearer in hindsight as we continue with our program.</p>
-<pre><code>use std::str::Chars; // iterator over `char`s
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::str::Chars; // iterator over `char`s
 
 pub struct Cursor&lt;'a&gt; {
     initial_len: usize,
     chars: Chars&lt;'a&gt;,
     prev: char,
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <ul>
 <li><code>initial_len</code> is going to help determine the length of the token we have just 
 consumed. </li>
@@ -211,48 +215,68 @@ drop whenever <code>Cursor</code> is being dropped. </p>
 <h2 id="instantiating"><a class="header" href="#instantiating">Instantiating</a></h2>
 <p>Our definition above suggests how we might instantiate one of these things given 
 our input, which we are assuming is a <code>&amp;str</code>:</p>
-<pre><code>pub fn new(input: &amp;'a str) -&gt; Cursor&lt;'a&gt; {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn new(input: &amp;'a str) -&gt; Cursor&lt;'a&gt; {
     return Cursor {
         initial_len: input.len(),
         chars: input.chars(),
         prev: '\0',
     };
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="interpreting-length"><a class="header" href="#interpreting-length">Interpreting length</a></h2>
 <p>We provide a method to know when there is nothing left to read:</p>
-<pre><code>pub fn is_empty(&amp;self) -&gt; bool {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn is_empty(&amp;self) -&gt; bool {
     return self.chars.as_str().len() == 0;
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>We mentioned above that the struct field <code>initial_len</code> would be used to determine 
 the length of a token. The idea is that we can determine, using methods from
 <code>Chars</code>, the length remaining in the iterator. By subtracting this from <code>initial_len</code>
 we can find out how much we have read. If we reset <code>initial_len</code> every time we 
 read a token, we can determine the length of a token.</p>
 <p>To get the length:</p>
-<pre><code>pub fn len_consumed(&amp;self) -&gt; usize {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn len_consumed(&amp;self) -&gt; usize {
     return self.initial_len - self.chars.as_str().len();
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>To reset <code>initial_len</code>:</p>
-<pre><code>pub fn reset_len_consumed(&amp;mut self) {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn reset_len_consumed(&amp;mut self) {
     self.initial_len = self.chars.as_str().len();
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="advancing-through"><a class="header" href="#advancing-through">Advancing through</a></h2>
 <p>We first provide a basic function to advance just one character, which is 
 essentially a wrapper around <code>Char.next()</code> that updates the other fields appropriately.
 Maybe this function will be called, but it will be particularly useful as a 
 building block.</p>
-<pre><code>pub fn adv(&amp;mut self) -&gt; Option&lt;char&gt; {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn adv(&amp;mut self) -&gt; Option&lt;char&gt; {
     let consumed_char = self.chars.next()?;
 
     self.prev = consumed_char;
 
     return Some(consumed_char);
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Notice the <code>?</code> propogates a return value of <code>None</code> from <code>Chars.next()</code> to the caller of 
 <code>adv()</code>, so that a value of <code>None</code> is returned from <code>adv()</code> when there are no 
 more characters left in the iterator.</p>
@@ -261,7 +285,10 @@ be advancing until we reach the end of a token. We don't want to have to consume
 character belonging to the next token just to know when the current one has ended.
 We want a function that will allow us to &quot;look ahead&quot; without consuming the next 
 character.</p>
-<pre><code>pub fn peek(&amp;self) -&gt; char {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn peek(&amp;self) -&gt; char {
     let c: char;
     match self.chars.clone().next() {
         Some(ch) =&gt; {
@@ -273,7 +300,8 @@ character.</p>
     }
     return c;
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Note that this is not very efficient, as it involves making a copy of the iterator 
 and then consuming the next character in the copy. &quot;Peeking&quot; functions are generally 
 not efficient, as iterator data structures do not prioritize the efficiency of this 
@@ -288,17 +316,86 @@ parameter, so that we stop advancing right before that <code>char</code> is cons
 leave room for more complex conditions, however, we let the user pass in a 
 function that takes in a <code>char</code> and returns a <code>bool</code>. The <code>bool</code> will tell us 
 to stop advancing if it is false.</p>
-<pre><code>pub fn adv_until(&amp;mut self, mut condition: impl FnMut(char) -&gt; bool) {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn adv_until(&amp;mut self, mut condition: impl FnMut(char) -&gt; bool) {
     while condition(self.peek()) &amp;&amp; !self.is_empty() {
         self.adv();
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>As we've just discussed, <code>condition</code> is the function telling us when to stop advancing.</p>
 <ul>
 <li><strong>Why mutable function instead of regular function?</strong></li>
 </ul>
 <p>We'll also stop advancing if there is nothing left to read.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lexer-1"><a class="header" href="#lexer-1">Lexer</a></h1>
+<h2 id="tokens"><a class="header" href="#tokens">Tokens</a></h2>
+<p>Recall that at this point, the stream of tokens we are generating does 
+not know its specific content. For example, a &quot;string&quot; token doesn't know
+the actual string it was constructed from. </p>
+<p>One reason we might do this is that it is very wasteful to store a copy 
+of the input in the tokens when it is already there in the file. Instead, 
+we can just store the length of the token. Again, we receive a stream of
+tokens, in order, so knowing the length of each token will allow us to 
+walk to the input <code>&amp;str</code> knowing which token is where.</p>
+<p>Since we want each token to know its length (e.g. with <code>Cursor.len_consumed()</code>),
+it is cleaner to have the following abstraction:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug, PartialEq)]
+pub struct Token {
+    pub kind: TokenKind,
+    pub len: usize,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The actual &quot;tokens&quot; as we've been using them are going to be <code>TokenKind</code>s. At 
+this point we put some essentials in (enough to tokenize a hello world program), 
+and we can always add to this later on:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug, PartialEq)]
+pub enum TokenKind {
+    /* Multi-char tokens */
+    Whitespace,
+    Identifier,                    // Includes keywords, ...
+    Literal { kind: LiteralKind }, // Includes strings, ...
+
+    /* Single-char tokens */
+    Semi,       // ;
+    OpenParen,  // (
+    CloseParen, // )
+    OpenBrace,  // {
+    CloseBrace, // }
+    Exclam,     // !
+
+    /* Anythng else */
+    Unknown,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>We are abstracting away <code>Literal</code> because at a high level we want to view them as 
+the same token (e.g. raw strings, double-quoted strings, etc.) but the specific 
+way our compiler deals with them may differ. We could just put all the <code>LiteralKind</code>s
+inside <code>TokenKind</code>, but in the spirit of grouping related things together we make it
+its own <code>enum</code>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug, PartialEq)]
+pub enum LiteralKind {
+    Str { terminated: bool }, // e.g. &quot;Hello, world!&quot;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The <code>terminated</code> field basically tells us if there is an ending quote. A string in 
+some code could last longer than a line, and if we just tokenize the code line-by-line,
+we would have trouble dealing with this case.</p>
 
                     </main>
 

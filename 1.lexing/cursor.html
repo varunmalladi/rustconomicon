@@ -13,21 +13,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -35,7 +35,7 @@
     <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
-            var path_to_root = "";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="lexing.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cursor.html" class="active"><strong aria-hidden="true">1.1.</strong> Cursor</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part 2:</li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Part 1: Compiling Hello World</li><li class="chapter-item expanded "><a href="../1.lexing/overview.html"><strong aria-hidden="true">1.</strong> Lexing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../1.lexing/cursor.html" class="active"><strong aria-hidden="true">1.1.</strong> Cursor</a></li><li class="chapter-item expanded "><a href="../1.lexing/lexer.html"><strong aria-hidden="true">1.2.</strong> Lexer</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part 2: (tbd)</li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -113,7 +113,7 @@
                     <h1 class="menu-title">mdBook Quickstart</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
 
@@ -156,14 +156,18 @@ handle the return value whenever calling one of <code>Cursor</code>'s methods. <
 <h2 id="struct-definition"><a class="header" href="#struct-definition">Struct definition</a></h2>
 <p>Here is our working definition. We'll try to explain why we have defined it this 
 way, but it will become clearer in hindsight as we continue with our program.</p>
-<pre><code>use std::str::Chars; // iterator over `char`s
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::str::Chars; // iterator over `char`s
 
 pub struct Cursor&lt;'a&gt; {
     initial_len: usize,
     chars: Chars&lt;'a&gt;,
     prev: char,
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <ul>
 <li><code>initial_len</code> is going to help determine the length of the token we have just 
 consumed. </li>
@@ -180,48 +184,68 @@ drop whenever <code>Cursor</code> is being dropped. </p>
 <h2 id="instantiating"><a class="header" href="#instantiating">Instantiating</a></h2>
 <p>Our definition above suggests how we might instantiate one of these things given 
 our input, which we are assuming is a <code>&amp;str</code>:</p>
-<pre><code>pub fn new(input: &amp;'a str) -&gt; Cursor&lt;'a&gt; {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn new(input: &amp;'a str) -&gt; Cursor&lt;'a&gt; {
     return Cursor {
         initial_len: input.len(),
         chars: input.chars(),
         prev: '\0',
     };
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="interpreting-length"><a class="header" href="#interpreting-length">Interpreting length</a></h2>
 <p>We provide a method to know when there is nothing left to read:</p>
-<pre><code>pub fn is_empty(&amp;self) -&gt; bool {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn is_empty(&amp;self) -&gt; bool {
     return self.chars.as_str().len() == 0;
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>We mentioned above that the struct field <code>initial_len</code> would be used to determine 
 the length of a token. The idea is that we can determine, using methods from
 <code>Chars</code>, the length remaining in the iterator. By subtracting this from <code>initial_len</code>
 we can find out how much we have read. If we reset <code>initial_len</code> every time we 
 read a token, we can determine the length of a token.</p>
 <p>To get the length:</p>
-<pre><code>pub fn len_consumed(&amp;self) -&gt; usize {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn len_consumed(&amp;self) -&gt; usize {
     return self.initial_len - self.chars.as_str().len();
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>To reset <code>initial_len</code>:</p>
-<pre><code>pub fn reset_len_consumed(&amp;mut self) {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn reset_len_consumed(&amp;mut self) {
     self.initial_len = self.chars.as_str().len();
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="advancing-through"><a class="header" href="#advancing-through">Advancing through</a></h2>
 <p>We first provide a basic function to advance just one character, which is 
 essentially a wrapper around <code>Char.next()</code> that updates the other fields appropriately.
 Maybe this function will be called, but it will be particularly useful as a 
 building block.</p>
-<pre><code>pub fn adv(&amp;mut self) -&gt; Option&lt;char&gt; {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn adv(&amp;mut self) -&gt; Option&lt;char&gt; {
     let consumed_char = self.chars.next()?;
 
     self.prev = consumed_char;
 
     return Some(consumed_char);
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Notice the <code>?</code> propogates a return value of <code>None</code> from <code>Chars.next()</code> to the caller of 
 <code>adv()</code>, so that a value of <code>None</code> is returned from <code>adv()</code> when there are no 
 more characters left in the iterator.</p>
@@ -230,7 +254,10 @@ be advancing until we reach the end of a token. We don't want to have to consume
 character belonging to the next token just to know when the current one has ended.
 We want a function that will allow us to &quot;look ahead&quot; without consuming the next 
 character.</p>
-<pre><code>pub fn peek(&amp;self) -&gt; char {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn peek(&amp;self) -&gt; char {
     let c: char;
     match self.chars.clone().next() {
         Some(ch) =&gt; {
@@ -242,7 +269,8 @@ character.</p>
     }
     return c;
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>Note that this is not very efficient, as it involves making a copy of the iterator 
 and then consuming the next character in the copy. &quot;Peeking&quot; functions are generally 
 not efficient, as iterator data structures do not prioritize the efficiency of this 
@@ -257,12 +285,16 @@ parameter, so that we stop advancing right before that <code>char</code> is cons
 leave room for more complex conditions, however, we let the user pass in a 
 function that takes in a <code>char</code> and returns a <code>bool</code>. The <code>bool</code> will tell us 
 to stop advancing if it is false.</p>
-<pre><code>pub fn adv_until(&amp;mut self, mut condition: impl FnMut(char) -&gt; bool) {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn adv_until(&amp;mut self, mut condition: impl FnMut(char) -&gt; bool) {
     while condition(self.peek()) &amp;&amp; !self.is_empty() {
         self.adv();
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>As we've just discussed, <code>condition</code> is the function telling us when to stop advancing.</p>
 <ul>
 <li><strong>Why mutable function instead of regular function?</strong></li>
@@ -273,10 +305,13 @@ to stop advancing if it is false.</p>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="lexing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../1.lexing/overview.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next" href="../1.lexing/lexer.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -284,10 +319,13 @@ to stop advancing if it is false.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="lexing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../1.lexing/overview.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next" href="../1.lexing/lexer.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
@@ -300,13 +338,13 @@ to stop advancing if it is false.</p>
         </script>
 
 
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
 
