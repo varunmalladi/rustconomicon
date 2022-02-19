@@ -16,7 +16,7 @@ handle the return value whenever calling one of `Cursor`'s methods.
 ## Struct definition
 Here is our working definition. We'll try to explain why we have defined it this 
 way, but it will become clearer in hindsight as we continue with our program.
-```
+```rust
 use std::str::Chars; // iterator over `char`s
 
 pub struct Cursor<'a> {
@@ -41,7 +41,7 @@ drop whenever `Cursor` is being dropped.
 ## Instantiating
 Our definition above suggests how we might instantiate one of these things given 
 our input, which we are assuming is a `&str`:
-```
+```rust
 pub fn new(input: &'a str) -> Cursor<'a> {
     return Cursor {
         initial_len: input.len(),
@@ -53,7 +53,7 @@ pub fn new(input: &'a str) -> Cursor<'a> {
 
 ## Interpreting length
 We provide a method to know when there is nothing left to read:
-```
+```rust
 pub fn is_empty(&self) -> bool {
     return self.chars.as_str().len() == 0;
 }
@@ -66,14 +66,14 @@ we can find out how much we have read. If we reset `initial_len` every time we
 read a token, we can determine the length of a token.
 
 To get the length:
-```
+```rust
 pub fn len_consumed(&self) -> usize {
     return self.initial_len - self.chars.as_str().len();
 }
 ```
 
 To reset `initial_len`:
-```
+```rust
 pub fn reset_len_consumed(&mut self) {
     self.initial_len = self.chars.as_str().len();
 }
@@ -84,7 +84,7 @@ We first provide a basic function to advance just one character, which is
 essentially a wrapper around `Char.next()` that updates the other fields appropriately.
 Maybe this function will be called, but it will be particularly useful as a 
 building block.
-```
+```rust
 pub fn adv(&mut self) -> Option<char> {
     let consumed_char = self.chars.next()?;
 
@@ -102,7 +102,7 @@ be advancing until we reach the end of a token. We don't want to have to consume
 character belonging to the next token just to know when the current one has ended.
 We want a function that will allow us to "look ahead" without consuming the next 
 character.
-```
+```rust
 pub fn peek(&self) -> char {
     let c: char;
     match self.chars.clone().next() {
@@ -129,7 +129,7 @@ parameter, so that we stop advancing right before that `char` is consumed. To
 leave room for more complex conditions, however, we let the user pass in a 
 function that takes in a `char` and returns a `bool`. The `bool` will tell us 
 to stop advancing if it is false.
-```
+```rust
 pub fn adv_until(&mut self, mut condition: impl FnMut(char) -> bool) {
     while condition(self.peek()) && !self.is_empty() {
         self.adv();
