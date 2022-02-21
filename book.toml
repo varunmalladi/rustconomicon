@@ -1,10 +1,10 @@
 [book]
-authors = ["Michael Currin"]
+authors = ["Varun Malladi"]
 language = "en"
 multilingual = false
 src = "src"
-title = "mdBook Quickstart"
-description = "Demo site for mdBook Quickstart repo"
+title = "rustconomicon"
+description = "building a rust compiler in rust"
 
 [output.html]
 site-url = "/rustconomicon/"
